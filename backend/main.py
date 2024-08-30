@@ -9,6 +9,8 @@ def get_contacts():
     json_contacts=list(map(lambda x:x.to_json(),contacts))
     return jsonify({"contacts":json_contacts})
 
+
+#create
 @app.route("create_contact",methods=["POST"])
 def create_contact():
     first_name=request.json.get("firstName")
@@ -27,6 +29,34 @@ def create_contact():
     
     return jsonify({"message":"user created!"}),201
 
+#update
+@app.route("/update_contact/<int:user_id>",methods=["PATCH"])
+def update_contact(user_id):
+    contact=Contact.query.get(user_id)
+
+    if not contact:
+        return jsonify("message","user not found"),404
+
+    data=request.json
+    contact.first_name=data.get("firstNae",contact.first_name)
+    contact.last_name=data.get("lastName",contact.last_name)
+    contact.email=data.get("email",contact.email)
+
+    db.session.commit()
+
+    return jsonify({"message":"user updated"}),200
+
+#delete
+@app.route("/delete_contact/<int:user_id>",methods=["DELETE"])
+def delete_contact(user_id):
+    contact=Contact.query.get(user_id)
+
+    if not contact:
+        return jsonify("message","user not found"),404
+    db.session.delelte(contact)
+    db.session.commit()
+
+    return jsonify({"message":"deleted"}),200
 
 
 if __name__=="__main__":
